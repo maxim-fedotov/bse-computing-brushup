@@ -10,12 +10,14 @@ This is the web-page of the programming brush-up course: Introductory and Interm
 Have a look at the <a href="docs/syllabus.pdf" target="_blank">syllabus</a> and the welcome email that you've got from the program office to learn more about this course.
 
 ***DataCamp***
+
 Note that you have got free access to DataCamp, a platform that provides a lot of online programming courses. The invitation to the DataCamp Classroom was sent to your emails in August. I recommend you to make use of this opportunity to practice. There are already some assignments posted in the DataCamp classroom. This is just to let you know which DataCamp courses could be helpful for you in the context of the class. If you would like to complete a part of the recommended DataCamp courses, I would prioritize Introduction to Python and R. In case you did not get the invite or have any other questions, do not hesitate to contact me via the email in the bottom of the web-page.  
 
 ***Prerequisites:***
+
 Before the course starts, I kindly ask you to fulfill the following requirements to come to the class prepared and enhance your learning outcome. 
 
-* Complete the mini [Hello World Assignment](./python/python-1-hello-world.md) which will help you to set up your programming tools and prepare for the course. It does not touch the R part of the course though.
+* Complete the mini [Hello World Assignment](./python/python-hello-world.md) which will help you to set up your programming tools and prepare for the course. It does not touch the R part of the course though.
 * Install [R](https://cloud.r-project.org) and [Rstudio](https://www.rstudio.com/products/rstudio/download/#download).
 * It is crucial that you bring your own laptops. For this course I have no particular hardware requirements, and for the rest of the master's you might not need a particularly strong machine. The reason is that in order to perform heavy computations or store lots of data you should consider connecting to a server (typically on cloud, such as Amazon Web Services) rather than doing it locally. You will use your laptop on the exam(s) and during the classes.
 

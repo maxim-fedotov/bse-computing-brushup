@@ -19,9 +19,9 @@ Class 4: [Handling Parameters: zip, itertools, Handling Functions: map, lambda](
 Class 5: [OOP (cont'd) and Modules](./docs/python-lectures/class_5_oop_modules.tar.gz); [JSON, numpy, pandas](./docs/python-lectures/class_5_json_pandas.ipynb)
 
 ### Exercises
-[Hello World](./python/python-hello-world.md), [Functions](https://classroom.github.com/a/isrdjAZ0), [Conditionals](https://classroom.github.com/a/paTBOn9w), [Loops](https://classroom.github.com/a/3tOwudtw), [Dictionaries](https://classroom.github.com/a/hs5i7NRM), [Classes](https://classroom.github.com/a/DZMnxFfu), [JSON](https://classroom.github.com/a/glR5Te6S).
+\[0\] [Hello World](./python/python-hello-world.md); \[1\] [Functions](https://classroom.github.com/a/isrdjAZ0); \[2\] [Conditionals](https://classroom.github.com/a/paTBOn9w); \[3\] [Loops](https://classroom.github.com/a/3tOwudtw); \[4\] [Dictionaries](https://classroom.github.com/a/hs5i7NRM); \[5\] [Classes](https://classroom.github.com/a/DZMnxFfu); \[6\] [JSON](https://classroom.github.com/a/glR5Te6S).
 
-Extra materials on Pandas: [Intro](https://classroom.github.com/a/XXG-ktci), [Grouping](https://classroom.github.com/a/D3cmvV36), [Project](https://classroom.github.com/a/VOtcNzSV). I recommend you to complete these assignments since it will help you to get comfortable with Pandas. There are also some notebooks with tutorial materials for pandas. I will do a coding review for these assignments upon requests.
+Extra materials on Pandas: [Intro](https://classroom.github.com/a/XXG-ktci); [Grouping](https://classroom.github.com/a/D3cmvV36); [Project](https://classroom.github.com/a/VOtcNzSV). I recommend you to complete these assignments since it will help you to get comfortable with Pandas. There are also some notebooks with tutorial materials for pandas. I will do a coding review for these assignments upon requests.
 
 ## R
 All the main materials are incorporated into a GitHub Classroom assignment: ["R: Tutorial"](https://classroom.github.com/a/a-YNZyRh). 
