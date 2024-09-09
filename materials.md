@@ -21,7 +21,7 @@ Class 4: [Handling Parameters: zip, itertools, Handling Functions: map, lambda](
 Class 5: [OOP (cont'd) and Modules](./docs/python-lectures/class_5_oop_modules.tar.gz); [JSON, numpy, pandas](./docs/python-lectures/class_5_json_pandas.ipynb)
 
 ### Exercises
-\[0\] [Hello World](./python/python-hello-world.md); \[1\] [Functions](https://classroom.github.com/a/k_8cpASP); \[2\] [Conditionals](https://classroom.github.com/a/L60dOvGO); \[3\] [Loops](https://classroom.github.com/a/yTFAp_bG); \[4\] [Dictionaries](https://classroom.github.com/a/p2Go4Rxz); \[5\] [Classes](https://classroom.github.com/a/siwZAIpm); \[6\] [JSON](https://classroom.github.com/a/R66vAKMk).
+\[0\] [Hello World](./python/python-hello-world.md); \[1\] [Functions](https://classroom.github.com/a/k_8cpASP); \[2\] [Conditionals](https://classroom.github.com/a/L60dOvGO); \[3\] [Loops](https://classroom.github.com/a/yTFAp_bG); \[4\] [Dictionaries](https://classroom.github.com/a/p2Go4Rxz); \[5\] [Classes](https://classroom.github.com/a/l6PUck9W); \[6\] [JSON](https://classroom.github.com/a/R66vAKMk).
 
 Extra materials on Pandas: [Intro](https://classroom.github.com/a/oh8OVCp7); [Grouping](https://classroom.github.com/a/7PTwHqzO); [Project](https://classroom.github.com/a/FziOvlEa). I recommend you to complete these assignments since it will help you to get comfortable with Pandas. There are also some notebooks with tutorial materials for pandas. I will do a coding review for these assignments upon requests.
 
