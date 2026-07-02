@@ -6,7 +6,7 @@ title: Materials
 On this page I will be posting and updating lecture materials, exercises and materials for the current year brushup.
 
 ## Shell (Command Line Interfaces)
-Have a look at the shell exercises [here](https://classroom.github.com/a/k0drcYeU). 
+Have a look at the shell exercises [here](). 
 
 The repo contains 3 folders corresponding to different assignments, one handout "handout_bash.html", and one ".gitignore" file (it makes git to omit several files from consideration at all). In the handout you can find a lot of information not only about Bourne again Shell, but also about Git and GitHub, and Servers.
 
@@ -21,12 +21,12 @@ Class 4: [Handling Parameters: zip, itertools, Handling Functions: map, lambda](
 Class 5: [OOP (cont'd) and Modules](./docs/python-lectures/class_5_oop_modules.tar.gz); [JSON, numpy, pandas](./docs/python-lectures/class_5_json_pandas.ipynb)
 
 ### Exercises
-\[0\] [Hello World](./python/python-hello-world.md); \[1\] [Functions](https://classroom.github.com/a/gktpSa0b); \[2\] [Conditionals](https://classroom.github.com/a/8z5oJ3NH); \[3\] [Loops](https://classroom.github.com/a/wNjETpHQ); \[4\] [Dictionaries](https://classroom.github.com/a/XLLvn9Bf); \[5\] [Classes](https://classroom.github.com/a/i68vlRpz); \[6\] [JSON](https://classroom.github.com/a/a-NMDKjN).
+\[0\] [Hello World](./python/python-hello-world.md); \[1\] [Functions](); \[2\] [Conditionals](); \[3\] [Loops](); \[4\] [Dictionaries](); \[5\] [Classes](); \[6\] [JSON]().
 
-Extra materials on Pandas: [Intro](https://classroom.github.com/a/njB-uPr9); [Grouping](https://classroom.github.com/a/7-ROyzM8); [Project](https://classroom.github.com/a/sQeld2pZ). I recommend you to complete these assignments since it will help you to get comfortable with Pandas. There are also some notebooks with tutorial materials for pandas. I will do a coding review for these assignments upon requests.
+Extra materials on Pandas: [Intro](); [Grouping](); [Project](). I recommend you to complete these assignments since it will help you to get comfortable with Pandas. There are also some notebooks with tutorial materials for pandas. I will do a coding review for these assignments upon requests.
 
 ## R materials
-All the main materials are incorporated into a GitHub Classroom assignment: ["R: Tutorial"](https://classroom.github.com/a/ktRHGKzO). 
+All the main materials are incorporated into a GitHub Classroom assignment: ["R: Tutorial"](). 
 
 You can find the in-class handouts there together with some practical exercises. For more information, please read the README file in the repo.
 
