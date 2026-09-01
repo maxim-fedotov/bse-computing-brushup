@@ -5,37 +5,29 @@ title: Home
 
 Welcome and congratulations on your enrollment to Data Science Methodology program at Barcelona School of Economics!
 
-This is the web-page of the programming brush-up course: Introductory and Intermediate Computing for Data Science. The exercises and contents of the course may be updated before the course starts.
+This is the web-page of the programming brush-up course: Introductory and Intermediate Computing for Data Science. We will cover three big parts: an introduction to Shell and Git, programming in Python, and programming in R. Lecture materials, exercises and tests are all listed on the [Materials page](./materials.md).
 
-Have a look at the <a href="docs/syllabus.pdf" target="_blank">syllabus</a> and the welcome email that you've got from the program office to learn more about this course.
+> **Note.** Some materials are still being uploaded. Anything listed on the [Materials page](./materials.md) without a link is not available yet — please check back. Some existing materials may also be updated during the course.
 
-There are three big parts of the course that we are going to cover:
-* Introduction to Shell and Git;
-* Programming in Python;
-* Programming in R.
+Exercises and tests are distributed through **Classroom 50**, a GitHub-based platform for course assignments. Accepting an assignment there gives you your own copy of its repository, which you then clone, work on, and push to — the same workflow for every assignment in this course, including the two tests at the end.
 
-All the materials that we are going to use, including lecture materials, exercises, and tests are listed on the [Materials page](./materials.md). The exercises are posted on the GitHub classroom as well as the tests will be published there at the end of the course. So, before the course starts, I kindly ask you to fulfill the following requirements to get a headstart with Git, GitHub Classroom and setup your programming tools.
+A few things to set up before we start. I know this update is arriving close to the first class, so please don't worry if you don't get through it all — we will have time in the first session, and turning up with a half-finished setup is completely fine.
 
-***Prerequisites*** 
+***Prerequisites***
 
-* Complete the mini [Hello World Assignment](./python/python-hello-world.md) which will help you to set up your programming tools and prepare for the course. It does not touch the R part of the course though.
+* **Check your email for an invitation to the course classroom on Classroom 50**, and accept it — you will need it to get the assignments. Have a look in your spam folder if you cannot find it, and write to me at the address below if it has not arrived.
+* Complete the mini [**Hello World Assignment**](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/hello-world/accept). It should take about 45 minutes and will walk you through setting up your programming tools and the workflow we use for every assignment. It does not touch the R part of the course though. If you get stuck on one thing for too long, try to complete other steps there and come to the first class anyway. Setup problems are normal, they are usually specific to your machine, and sorting them out is part of the agenda of the first session.
 * Install [R](https://cloud.r-project.org) and [Rstudio](https://www.rstudio.com/products/rstudio/download/#download).
-* It is crucial that you bring your own laptops. For this course I have no particular hardware requirements, and for the rest of the master's you might not need a particularly strong machine. The reason is that in order to perform heavy computations or store lots of data you should consider connecting to a server (typically on cloud, such as Amazon Web Services) rather than doing it locally. You will use your laptop on the exam(s) and during the classes.
+* Bring your own laptop. There are no particular hardware requirements — for heavy computation you would connect to a server rather than work locally — but you will need it in every class and in the tests.
 
 ***Comments***
 
-* I recommend you to come with a Unix-based Operating System (including MacOS). It is more flexible in terms of different action permissions. In addition, there are some data science tools out there that are designed for Unix/Linux. Although, if you have Windows, then you can still stick with it if you prefer. Just keep in mind that I might not be able to give you optimal assistance if you come with Windows.
-* If you would like to install Linux on your machine, there are different options. If you have enough memory on your hard drive, you can install Linux OS alongside with Windows as dual-boot (you can find many tutorials on the Internet on how to do this). If you have a relatively strong machine, a virtual machine with a Linux operating system would work as well. It is also possible to install a Linux OS on an external drive (e.g. SSD) and boot from it. However, I do not really recommend this option since it might be prone to bugs and errors and very much depends on quality of the said external drive.
-* In the Hello World assignment you are asked to install [Git](https://git-scm.com/), a version control system, and create a [GitHub](https://github.com) account. Basically, Git is a version control environment which you interact with through your system's command line. Whereas GitHub is a provider of on-line hosting for software development and version control using Git. Pay attention to the instructions on how to connect your GitHub account with your local git. 
-* Programming and computing is largely learning-by-doing. Hence, the classes will involve a lot of practice. There will be many small computing assignments interspersed throughout the course; and, again, you will need your own laptop to follow these. I will be there to guide you through the process, answer any questions and speed up the learning process.
+* Any of Windows, macOS or Linux works fine for this course. If you are on Windows, install the Windows Subsystem for Linux (WSL) — the Hello World assignment walks you through it, and Microsoft's [installation guide](https://learn.microsoft.com/en-us/windows/wsl/install) covers the details. Once WSL is set up you have a genuine Linux environment, and I can give you exactly the same support as anyone on macOS or Linux. If you are curious about running Linux properly, as a dual boot or in a virtual machine, the Hello World assignment has some pointers at the end. None of that is required.
+* Programming is largely learning-by-doing, so the classes will involve a lot of practice, with small computing assignments throughout. I will be there to guide you through it and answer questions.
 
 ***DataCamp***
 
-Note that you have got free access to DataCamp, a platform that provides a lot of online programming courses. I recommend you to make use of this opportunity to practice. There are already some assignments posted in the DataCamp classroom. This is just to let you know which DataCamp courses could be helpful for you in the context of the class. 
-
-If you would like to complete a part of the recommended DataCamp courses, I would prioritize Introduction to Python and R. 
-
-In case you did not get the invite or have any other questions, do not hesitate to contact me via the email below. 
+You have free access to DataCamp, which provides a lot of online programming courses, and there are already some assignments posted in the DataCamp classroom. It is worth making use of, and if you would like to complete some of the recommended courses, I would prioritize Introduction to Python and R.
 
 ---
 
