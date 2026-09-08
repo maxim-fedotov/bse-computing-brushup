@@ -43,7 +43,7 @@ Class 5: [OOP (cont'd) and Modules](./docs/python-lectures/class_5_oop_modules.t
 
 ### Exercises
 
-\[0\] [Basics](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/python-basics/accept); \[1\] [Functions](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/python-functions/accept); \[2\] Conditionals *(coming soon)*; \[3\] Loops *(coming soon)*; \[4\] Dictionaries *(coming soon)*; \[5\] Classes *(coming soon)*; \[6\] JSON *(coming soon)*.
+\[0\] [Basics](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/python-basics/accept); \[1\] [Functions](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/python-functions/accept); \[2\] [Conditionals](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/python-conditionals/accept); \[3\] Loops *(coming soon)*; \[4\] Dictionaries *(coming soon)*; \[5\] Classes *(coming soon)*; \[6\] JSON *(coming soon)*.
 
 Extra materials on Pandas: Intro *(coming soon)*; Grouping *(coming soon)*; Project *(coming soon)*.
 
