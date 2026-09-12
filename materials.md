@@ -51,11 +51,13 @@ These are optional and go beyond what we cover in class, but pandas is central t
 
 ## R materials
 
-The in-class handouts are going to appear below soon.
-
-R exercises come in two assignments:
+### Handouts
 
 [R Basics](./docs/R-handouts/handout_Rbasics.html) ([Rmd source](./docs/R-handouts/handout_Rbasics.Rmd)) — introduction, scripts, data types and structures, random number generation, control structures, functions, and the apply family.  
+
+### Exercises
+
+R Basics *(coming soon)* — control structures, functions, random number generation, and the apply family.  
 R Data *(coming soon)* — importing, transforming and merging data, and producing figures and tables.
 
 Please read the README file in each repository before starting.
