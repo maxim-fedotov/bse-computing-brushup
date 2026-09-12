@@ -39,7 +39,7 @@ Class 1: [Introduction, Variables, Basic Data Types, Expressions, Comparisons](.
 Class 2: [Functions, Catching Exceptions](./docs/python-lectures/class_2.ipynb); [Conditionals and Raising Exceptions](./docs/python-lectures/class_2_conditionals.html)  
 Class 3: [Sequence Types, Loops, List Comprehensions, Dictionaries, Set Types](./docs/python-lectures/class_3.ipynb)  
 Class 4: [Handling Parameters: zip, itertools, Handling Functions: map, lambda](./docs/python-lectures/class_4.ipynb); [Object Oriented Programming in Python](./docs/python-lectures/class_4_oop.html); [Script: Car Example](./docs/python-lectures/class_4_oop_example.py)  
-Class 5: [OOP (cont'd) and Modules](./docs/python-lectures/class_5_oop_modules.tar.gz); [JSON, numpy, pandas](./docs/python-lectures/class_5_json_pandas.ipynb)
+Class 5: [OOP (cont'd) and Modules](./docs/python-lectures/class_5_oop_modules.tar.gz); [numpy](./docs/python-lectures/class_5_numpy.ipynb); [JSON, pandas](./docs/python-lectures/class_5_json_pandas.ipynb)
 
 ### Exercises
 
