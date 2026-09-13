@@ -96,7 +96,7 @@ Your first interaction with R can be as simple as using a calculator: type an ar
 1 - 2
 1 / 2
 1 * 2
-2 ^ 3
+2^3
 ```
 
 Common mathematical functions are built in and available immediately.
@@ -1234,9 +1234,9 @@ Style matters when you share code with others, and it also helps you organise yo
 - **File names** should end in `.R` and, of course, be meaningful.
 - **Identifiers**: use `snake_case` for both variables and functions, e.g. `mean_wage`, `compute_mean`. You will also see `camelCase` and `dot.case` in older code; `dot.case` is best avoided, since it collides with R's S3 method dispatch.
 - **Line length**: maximum 80 characters.
-- **Indentation**: 4 spaces, never tabs (Tabs used in RStudio convert to spaces by default; see RStudio settings for adjusting the number of spaces one tab equals to. This can be also set up for other IDEs. The tidyverse guide suggests two spaces for indentation. We use four throughout this course, including in the Python materials, so that you have one habit rather than two.)
-- **Assignment**: use `<-`, not `=`. Note that `=` inside a function call, as in `mean(x = 1:10)`, is not assignment at all — it matches an argument by name, and is correct there.
-- **Spacing**: put spaces around binary operators (`+`, `-`, `<-`, `==`, and `=` when naming arguments). No space before a comma, always one after. A space before a left parenthesis, except in a function call — so `if (x > 0)` but `mean(x)`.
+- **Indentation**: 4 spaces, never tabs. The tidyverse guide suggests two; we use four throughout this course, including in the Python materials, so that you have one habit rather than two. (RStudio converts tabs to spaces by default, and you can change how many spaces a tab produces in its settings — most other editors have the same option.)
+- **Assignment**: use `<-` for assignment, not `=`. Note that `=` inside a function call, as in `mean(x = 1:10)`, is not an assignment at all — it matches an argument by name, and is correct there.
+- **Spacing**: put spaces around arithmetic operators (e.g. `+`, `-`, `*`, `/`), though not around `^`, assignment operators (`<-` and `=` if you end up using it; the latter one also when naming function arguments), logical operators (e.g. `==`, `<=`, `!=`, `&`, `|`, etc.), special operators (e.g. `%in%`, `%any%`, etc.). No space before a comma, always one after. A space before a left parenthesis, except in a function call — so `if (x > 0)` but `mean(x)`. No spacing before and after the following operators: `:`, `::`, and `$`.
 - **Curly braces**: opening brace at the end of the line, closing brace on its own line.
 - **Comments**: start with `#` followed by a space; inline comments need two spaces before the `#`.
 
