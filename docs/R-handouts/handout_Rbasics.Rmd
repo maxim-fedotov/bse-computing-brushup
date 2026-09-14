@@ -1,6 +1,15 @@
 ---
 title: "R basics"
-author: "Instructor: Maxim Fedotov^[I am truly indebted to Hrvoje Stojic, who originally created these materials for several offerings of the brush-ups in Data Science, and Jordi Llorens, who was teaching the brushup in the previous years and adapted these materials. These handouts are re-adaptation of these materials.]"
+author: "Instructor: Maxim Fedotov^[
+    Credits: These notes are partially based on the earlier course materials
+    originally created by Hrvoje Stojic and subsequently adapted by Jordi Llorens
+    for previous editions of this brush-up. They have since been substantially
+    revised and updated. Any errors introduced along the way are mine. Following
+    the original materials, this instructional material is made available under the
+    [Creative Commons Attribution 4.0 license](https://creativecommons.org/licenses/by/4.0/),
+    and the accompanying code under the
+    [MIT license](https://opensource.org/licenses/MIT).
+]"
 date: "September, 2026"
 output: 
   html_document:
