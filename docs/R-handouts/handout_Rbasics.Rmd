@@ -514,96 +514,6 @@ Note that some of the operations above are not matrix algebra: `*` and `+` work 
 
 One detail worth knowing about recycling: R stores matrices in **column-major** order, so a recycled vector is matched down the first column, then the second, and so on. Above, `x` has length 3 and `y` has 3 rows, so `x` lines up with each column in turn. Had the lengths not divided evenly, R would have warned you — but when they do divide evenly it proceeds silently, whether or not that was what you meant.
 
-# Random number generators
-
-Strictly speaking, a computer cannot generate random numbers — genuine randomness comes from physical phenomena such as thermal noise. What R and other programming languages give you are *pseudo-random* numbers, produced by a deterministic algorithm: statistically random enough for practical purposes, but exactly repeatable if you start from the same place, which is what makes simulation studies reproducible. R ships with functions for drawing from a wide range of distributions, available as soon as you start the console.
-
-For example, to generate uniformly distributed random numbers you use the `runif` function.
-
-```{r}
-# a single draw, from the 0-1 range by default
-runif(1)
-
-# a vector of 4 draws
-runif(4)
-
-# a vector of 3 draws from 0 to 10
-runif(3, min = 0, max = 10)
-
-# 3 integers from 0 to 10
-floor(runif(3, min = 0, max = 11))  # note max = 11, so that 10 can occur
-```
-
-That last line works, but `sample(0:10, 3, replace = TRUE)` is the more direct way to draw random integers — see below.
-
-To generate numbers from a normal distribution, you use `rnorm`.
-
-```{r}
-# by default the mean is 0 and the standard deviation is 1
-rnorm(4)
-
-# use a different mean and standard deviation
-rnorm(4, mean = 5, sd = 10)
-
-# you can check the distribution by plotting the draws
-x <- rnorm(4000, 5, 10)
-hist(x, 30)
-```
-
-Some of the other distributions available by default:
-
-- Binomial `rbinom` (a Bernoulli draw is just `rbinom(n, size = 1, prob = p)`)
-- Geometric `rgeom`  
-- Poisson `rpois`  
-- Beta `rbeta`
-- Exponential `rexp`  
-- Student's t `rt`
-
-If you check the help files of either `runif` or `rnorm` you will notice that each distribution comes with a family of four functions, distinguished by their first letter: `r` draws random numbers, `d` gives the density (PDF), `p` gives the cumulative distribution function (CDF), and `q` gives the quantile function, i.e. the inverse CDF. So for the normal distribution you have `rnorm`, `dnorm`, `pnorm` and `qnorm`.
-
-For example, you could use `pnorm` to compute the p-value of a z-statistic of 2.1.
-
-```{r}
-z <- 2.1
-
-# two-tailed p-value
-2 * pnorm(-abs(z))
-2 * pnorm(abs(z), lower.tail = FALSE)  # gives the same
-```
-
-The `abs` is what makes this work for a z-statistic of either sign: with a negative `z` and no `abs`, you would be computing the wrong tail and could end up with a "p-value" above 1.
-
-Another useful function is `sample`, which draws from a vector of values you supply — optionally with probabilities of your choosing.
-
-```{r}
-# integers, with replacement
-sample(1:10, 10, replace = TRUE)
-
-# letters of the alphabet, without replacement
-sample(LETTERS, 3, replace = FALSE)
-
-# a biased coin: heads nine times out of ten
-sample(c("H", "T"), 8, replace = TRUE, prob = c(0.9, 0.1))
-```
-
-Note the difference `replace` makes: with `replace = FALSE` you cannot draw the same element twice, so `sample(LETTERS, 3)` gives three distinct letters, and asking for more elements than the vector contains is an error.
-
-When you generate random numbers you usually want to be able to repeat the simulation and recreate exactly the same sequence. `set.seed` is what does that.
-
-```{r}
-set.seed(1234)
-runif(5)
-
-# run it again without set.seed and you get a different sequence
-runif(5)
-
-# but setting the same seed returns you to the same place
-set.seed(1234)
-runif(5)
-```
-
-Set the seed once at the top of a script rather than before every draw. The point is that the whole script is reproducible, not that any individual line is.
-
 # Control structures 
 
 Until now all our code has been sequential: each line runs after the one before it, and each line runs exactly once. Any program of real substance needs more than that. It needs **conditionals**, which run a block of code only if some condition holds, and **loops**, which run a block repeatedly — once for each element of a sequence, or for as long as a condition remains true. We discuss conditionals and loops in this section. Closely related are **functions**, which package a block of code under a name so you can run it again with different inputs. We come to those in the section after.
@@ -1235,6 +1145,96 @@ This **split-apply-combine** pattern comes up constantly in data analysis, and i
 - `Map` and `Reduce` are the general functional-programming versions.
 
 We will not dwell on these, but it is useful to know they exist.
+
+# Random number generators
+
+Strictly speaking, a computer cannot generate random numbers — genuine randomness comes from physical phenomena such as thermal noise. What R and other programming languages give you are *pseudo-random* numbers, produced by a deterministic algorithm: statistically random enough for practical purposes, but exactly repeatable if you start from the same place, which is what makes simulation studies reproducible. R ships with functions for drawing from a wide range of distributions, available as soon as you start the console.
+
+For example, to generate uniformly distributed random numbers you use the `runif` function.
+
+```{r}
+# a single draw, from the 0-1 range by default
+runif(1)
+
+# a vector of 4 draws
+runif(4)
+
+# a vector of 3 draws from 0 to 10
+runif(3, min = 0, max = 10)
+
+# 3 integers from 0 to 10
+floor(runif(3, min = 0, max = 11))  # note max = 11, so that 10 can occur
+```
+
+That last line works, but `sample(0:10, 3, replace = TRUE)` is the more direct way to draw random integers — see below.
+
+To generate numbers from a normal distribution, you use `rnorm`.
+
+```{r}
+# by default the mean is 0 and the standard deviation is 1
+rnorm(4)
+
+# use a different mean and standard deviation
+rnorm(4, mean = 5, sd = 10)
+
+# you can check the distribution by plotting the draws
+x <- rnorm(4000, 5, 10)
+hist(x, 30)
+```
+
+Some of the other distributions available by default:
+
+- Binomial `rbinom` (a Bernoulli draw is just `rbinom(n, size = 1, prob = p)`)
+- Geometric `rgeom`  
+- Poisson `rpois`  
+- Beta `rbeta`
+- Exponential `rexp`  
+- Student's t `rt`
+
+If you check the help files of either `runif` or `rnorm` you will notice that each distribution comes with a family of four functions, distinguished by their first letter: `r` draws random numbers, `d` gives the density (PDF), `p` gives the cumulative distribution function (CDF), and `q` gives the quantile function, i.e. the inverse CDF. So for the normal distribution you have `rnorm`, `dnorm`, `pnorm` and `qnorm`.
+
+For example, you could use `pnorm` to compute the p-value of a z-statistic of 2.1.
+
+```{r}
+z <- 2.1
+
+# two-tailed p-value
+2 * pnorm(-abs(z))
+2 * pnorm(abs(z), lower.tail = FALSE)  # gives the same
+```
+
+The `abs` is what makes this work for a z-statistic of either sign: with a negative `z` and no `abs`, you would be computing the wrong tail and could end up with a "p-value" above 1.
+
+Another useful function is `sample`, which draws from a vector of values you supply — optionally with probabilities of your choosing.
+
+```{r}
+# integers, with replacement
+sample(1:10, 10, replace = TRUE)
+
+# letters of the alphabet, without replacement
+sample(LETTERS, 3, replace = FALSE)
+
+# a biased coin: heads nine times out of ten
+sample(c("H", "T"), 8, replace = TRUE, prob = c(0.9, 0.1))
+```
+
+Note the difference `replace` makes: with `replace = FALSE` you cannot draw the same element twice, so `sample(LETTERS, 3)` gives three distinct letters, and asking for more elements than the vector contains is an error.
+
+When you generate random numbers you usually want to be able to repeat the simulation and recreate exactly the same sequence. `set.seed` is what does that.
+
+```{r}
+set.seed(1234)
+runif(5)
+
+# run it again without set.seed and you get a different sequence
+runif(5)
+
+# but setting the same seed returns you to the same place
+set.seed(1234)
+runif(5)
+```
+
+Set the seed once at the top of a script rather than before every draw. The point is that the whole script is reproducible, not that any individual line is.
 
 # R Programming style guide
 
