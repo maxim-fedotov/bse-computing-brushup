@@ -61,7 +61,7 @@ These are optional and go beyond what we cover in class, but pandas is central t
 
 The assignments below contain several files with exercises on different topics each.
 
-[1] [R Basics](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/r-basics/accept); [2] R Data *(coming soon)*.
+[1] [R Basics](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/r-basics/accept); [2] [R Data](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/r-data/accept).
 
 Please read the README file in each repository before starting.
 
