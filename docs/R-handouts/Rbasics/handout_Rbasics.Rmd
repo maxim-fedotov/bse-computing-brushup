@@ -121,6 +121,10 @@ You assign a value to a named object with the `<-` operator.
 a <- 5
 ```
 
+```{r}
+a = 5
+```
+
 This creates the variable `a`, holding the numeric value 5, in the current environment. Typing its name prints it back.
 
 ```{r} 
@@ -284,7 +288,7 @@ Some convenient functions to create vectors
 ```{r}
 1:5
 seq(from = 2, to = 10, by = 2)
-rep
+rep(1, 4)
 ```
 
 Internally, scalars (a single number or a single string) are actually vectors with one element.
@@ -1124,7 +1128,11 @@ We can compute a one-row summary for each subset data frame using `lapply`:
 summaries <- lapply(
     by_region, 
     function(d) {
-        data.frame(region = d$region[1], n = nrow(d), mean_revenue = mean(d$revenue))
+        data.frame(
+            region = d$region[1], 
+            n = nrow(d), 
+            mean_revenue = mean(d$revenue)
+        )
     }
 )
 summaries
