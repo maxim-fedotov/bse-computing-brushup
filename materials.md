@@ -53,9 +53,9 @@ These are optional and go beyond what we cover in class, but pandas is central t
 
 ### Handouts
 
-[R Basics](./docs/R-handouts/basics/handout_Rbasics.html) ([Rmd source](./docs/R-handouts/basics/handout_Rbasics_source.zip)) — introduction, scripts, data types and structures, random number generation, control structures, functions, and the apply family.  
+[R Basics](./docs/R-handouts/Rbasics/handout_Rbasics.html) ([source](./docs/R-handouts/handout_Rbasics_source.zip)) — introduction, scripts, data types and structures, random number generation, control structures, functions, and the apply family.  
 
-R Data *(coming soon)* — importing, transforming and merging data, and producing figures and tables.
+[R Data](./docs/R-handouts/Rdata/handout_Rdata.html) ([source](./docs/R-handouts/handout_Rdata_source.zip)) — importing, transforming and merging data, and producing figures and tables.
 
 ### Exercises
 

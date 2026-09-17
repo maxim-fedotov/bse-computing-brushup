@@ -1,0 +1,1217 @@
+---
+title: "Data manipulation with R"
+author: "Instructor: Maxim Fedotov^[
+    Credits: These notes are partially based on the earlier course materials
+    originally created by Hrvoje Stojic and subsequently adapted by Jordi Llorens
+    for previous editions of this brush-up. They have since been substantially
+    revised and updated. Any errors introduced along the way are mine. Following
+    the original materials, this instructional material is made available under the
+    [Creative Commons Attribution 4.0 license](https://creativecommons.org/licenses/by/4.0/),
+    and the accompanying code under the
+    [MIT license](https://opensource.org/licenses/MIT).]"
+date: "September, 2026"
+output: 
+  html_document:
+    theme: united
+    highlight: kate
+    md_extensions:  +raw_tex+multiline_tables
+    toc: true
+    toc_depth: 2
+  pdf_document:
+    fig_caption: no
+    highlight: kate
+    keep_tex: no
+    number_sections: yes
+fontsize: 12pt
+---
+
+```{r, knitr_options, include=FALSE}
+    
+     # loading in required packages
+    if (!require("knitr")) install.packages("knitr"); library(knitr)
+    if (!require("rmarkdown")) install.packages("rmarkdown"); library(rmarkdown)
+
+    # some useful global defaults
+    opts_chunk$set(warning=FALSE, message=FALSE, include=TRUE, echo=TRUE, cache=FALSE, cache.comments=FALSE, comment='##')
+
+    # output specific defaults
+    output <- opts_knit$get("rmarkdown.pandoc.to")
+    if (output=="html") opts_chunk$set(fig.width=10, fig.height=5)
+    if (output=="latex") opts_chunk$set(fig.width=6,  fig.height=4,
+        dev = 'cairo_pdf', dev.args=list(family="Arial"))
+```
+
+
+# Data import/export  
+
+Before performing any analysis in R you need to get your data into it. Data comes in many formats, so this is a skill you keep adding to. R has a wide range of import options^[See *R Data Import/Export* at [cran.r-project.org/doc/manuals/r-release/R-data.pdf](https://cran.r-project.org/doc/manuals/r-release/R-data.pdf)], covering plain text, Excel files, databases, and — through add-on packages such as `haven` or `foreign` — the proprietary formats of SPSS, Stata and SAS.
+
+The data used in this handout is in the `data` folder that comes with it. Open the handout's folder as an RStudio Project (File > New Project > Existing Directory), and every path below will work as written, on your machine and on anyone else's.
+
+## Importing native .RData files
+
+The easiest data format for importing is the native `RData`, though data is rarely distributed this way. The `load` function reads such a file.
+
+A word of caution: an `.RData` file can contain any number of objects, and `load` puts all of them into your workspace. Any whose names match objects you already have will be overwritten without warning. If you are unsure what is inside a file, `load` it into a fresh session first.
+
+```{r}
+load("data/mtcars.RData")
+```
+
+Notice that the data frame appeared in your environment. The `mtcars` is a built-in data frame^[[stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html](https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/mtcars.html)], so it is available from the start of an R session even without loading it from an external file.
+
+## Importing plain text files
+
+Plain text remains one of the standard ways to exchange data. There are two paradigms: **delimited text** and **fixed width**. Either may have a **header** row of column names, and before importing it is always worth opening the file in a plain text editor to see what you are dealing with — unless it is too large, in which case `head` at the command line will do.
+
+In **delimited text files** the columns are separated by a specific character, typically `;`, `,` or a tab (written `\t`). The most common is **CSV**, comma-separated values.
+
+The general function is `read.table`. R also provides some wrappers around it with common defaults already set: `read.csv` assumes a header and comma separators, and `read.csv2` assumes a header, semicolon separators and a comma decimal mark.
+
+Our first example is a historical snapshot of the *Demographic data of census sections in Barcelona*, published by Barcelona Open Data.^[
+The city's open data portal is currently at [opendata-ajuntament.barcelona.cat](https://opendata-ajuntament.barcelona.cat/en/). The copy bundled here is a historical snapshot, so you do not need to download anything.
+] 
+The dataset we are going to load now is stored in `MAP_SCENSAL.csv`.
+It has a header row and semicolon separators.
+
+```{r}
+# Import
+census_data <- read.table(
+    "data/MAP_SCENSAL.csv",
+    header = TRUE,
+    sep = ";"
+)
+
+# Translating headers into English
+names(census_data)
+names(census_data) <- c(
+    "Date", "men", "census_division",
+    "women", "age_0_14", "age_15_24", "age_25_64",
+    "age_65_", "nationals", "eu_community",
+    "overseas"
+)
+
+# Data summary
+summary(census_data)
+
+# Computing a new column: percent of senior citizens
+census_data$seniors_percent <- (
+    census_data$age_65_ / (census_data$men + census_data$women)
+)
+summary(census_data$seniors_percent)
+```
+
+## Always check what you got
+
+Importing a file almost never fails loudly. It usually succeeds, and gives you something subtly different from what you expected. So the first thing to do after any import is to look at the column types.
+
+```{r}
+str(census_data)
+```
+
+Look at `census_division`. In the file, the first census section is written `01001`, but R has read it as the integer `1001` — **the leading zero is gone**. This is a classic example of a silent data importing behavior that can be overlooked. The identifier codes that look numeric get imported as numbers, and any later join against another dataset that kept them as text will silently fail to match.
+
+The fix is to tell `read.table` which type you expect for this particular column, using `colClasses`:
+
+```{r}
+census_data2 <- read.table(
+    "data/MAP_SCENSAL.csv", header = TRUE, sep = ";",
+    colClasses = c(SECCIO_CENSAL = "character")
+)
+census_data2$SECCIO_CENSAL[1]
+```
+
+The second example makes the point from the other direction. This is an Aging Population file from a UK open data release. It has a header, comma separators, and some fields wrapped in double quotes.
+
+```{r}
+# Import
+aging_population <- read.table(
+    "data/aging-population-2008.csv",
+    header = TRUE, sep = ",", quote = "\""
+)
+
+# Rename last column
+names(aging_population)
+names(aging_population)[7] <- "PercentSeniors"
+
+# What did we actually get?
+sapply(aging_population, class)
+```
+
+Every column is `character`, including the two that should be numbers. `summary()` on this data would tell you nothing useful — try it and see. The reason is visible in the raw file: population is written `"1,335"`, using quotes and a thousands separator, and the percentage is written `41.7%`. Neither is a number as far as R is concerned, and a single such value anywhere in a column is enough for R to represent the whole column as text.
+
+Cleaning them means stripping the offending characters and converting:
+
+```{r}
+aging_population$Total.Population <- as.numeric(
+    gsub(",", "", aging_population$Total.Population)
+)
+aging_population$PercentSeniors <- as.numeric(
+    sub("%", "", aging_population$PercentSeniors)
+)
+
+summary(aging_population$PercentSeniors)
+```
+
+Note the check that matters here: if `as.numeric` meets something it cannot convert, it returns `NA` with a warning rather than failing. After a conversion like this, `anyNA()` on the column tells you whether anything was silently lost.
+
+**Fixed-width files** have no delimiter at all, so you need a description giving the width of each column. Our example is from the INE, the Spanish statistical office: the Survey on Human Resources in Science and Technology.
+We use a historical snapshot of the INE anonymized microdata.^[
+The current version can be found at [ine.es/en/prodyser/microdatos_en.htm](https://www.ine.es/en/prodyser/microdatos_en.htm).
+]
+
+In this case, the data comes in a fixed-width file, `RRHH09.txt`, accompanied by a metadata spreadsheet describing the layout, `disreg_recurciencia.xls`.
+
+```{r}
+# Metadata for the selected columns
+col_widths <- c(
+    6, 2, 4, 2, 4, 1, 4, 4, 4, 
+    1, 1, 2, 2, 2, 2, 2, 1, 1
+)
+
+col_names <- c(
+    "MUIDENT", "CCAARESI", "ANONAC",
+    "CCAANAC", "CONTNACIM", "RELA", "CONTNAC1",
+    "CONTNAC2", "CONTNAC3", "SEXO", "ESTADOCIVIL",
+    "DEPEN5", "DEPEN18", "DEPENMAS", "NIVESTPA",
+    "NIVESTMA", "NIVPROFPA", "NIVPROFMA"
+)
+
+# Fixed-width import function
+fwf_data <- read.fwf(
+    file = "data/RRHH09.txt",
+    n = 100, 
+    widths = col_widths, 
+    col.names = col_names
+)
+
+# Data summary
+summary(fwf_data)
+```
+
+We imported only a part of the dataset contained in the original file. Two separate parameters are responsible for this. We set `n = 100` in `read.fwf`, which indicates that only the first 100 **rows** should be imported, and `widths` described only the first 18 **columns** — the file has many more of both. Reading a small piece first is a good habit with any large file.
+
+**Practice** fixed-width import. Import all the columns of `RRHH09.txt`, but only the first 1000 rows. You will need the metadata spreadsheet in the `data` folder for the column widths and names. Summarize the columns, in particular the labor market situation (`SITLAB`). Is the employment rate among respondents high? Decipher its code values by reading the metadata.
+
+## Exporting data
+
+Having done some analysis, you will often want to write results out. The main function is `write.table`, whose name deliberately mirrors `read.table`. If no folder is given, the file goes to the working directory.
+
+We will be writing files in a new `output` directory. Let's first create it.
+```{r}
+dir.create("output", showWarnings = FALSE)
+```
+
+Before writing, you have to decide the output format: the field separator, whether to write column and row names, whether to quote strings, and which decimal mark to use.
+
+Suppose that we want to write write the `mtcars` data frame into a file. This is how we can do it.
+
+```{r}
+# Typical csv export
+write.table(
+    mtcars, file = "output/mtcars.csv", 
+    sep = ",", quote = FALSE, row.names = FALSE
+)
+
+# Custom export
+write.table(
+    mtcars, file = "output/mtcars.dat", 
+    sep = "\t", row.names = TRUE, dec = ","
+)
+```
+
+Saving to a native `.RData` file lets you store multiple objects of any type, whereas a text file generally limits you to a single data frame. The first argument names the objects, the second the file.
+
+```R
+save(mtcars, file = "output/mtcars.RData")
+```
+
+## Other formats
+
+For Excel files, use **`readxl`** to read (`read_excel`) and **`writexl`** to write. Both are pure R and need no external software — unlike some older packages, which required Java or Perl.
+
+For SPSS, Stata and SAS files, **`haven`** is the current choice. Another option is the  **`foreign`** package, but it does not support Stata formats starting from version 12.
+
+Finally, a note on speed. Everything above uses base R, which needs no extra packages and is entirely adequate for files of the size you will meet here. For larger files there exist **`readr`** (`read_csv`, `read_fwf`) or **`data.table`** (`fread`), both of which are considerably faster and are what you will see in modern code.
+
+# More about displaying data
+
+We have already seen the `str` function, which displays some structural information about the data and gives a preview of some few values.
+There are other functions in R that help inspecting data.
+
+| Function | What question it answers |
+|:---|:---|
+| `str` | What is in it? — structure, types and the first few values, all at once |
+| `dim`, `nrow`, `ncol` | How big is it? |
+| `names` | What are the columns called? |
+| `head`, `tail` | What do the actual rows look like? |
+| `summary` | How is each column distributed? |
+| `table` | How often does each value of a categorical column occur? |
+
+The `str` function is the one you often reach for first, since it answers most of these
+at once. We will again the built-in `mtcars` dataset again.
+
+```{r}
+str(mtcars)
+dim(mtcars)
+names(mtcars)
+```
+
+Since most tables have far more rows than fit on a screen, start by looking at
+the ends.
+
+```{r}
+head(mtcars)
+tail(mtcars)
+
+# you can specify the number of rows
+head(mtcars, 10)
+```
+
+`summary` describes each column in turn. For numeric columns it gives the
+five-number summary and the mean; it also reports the number of `NA`s, which is
+often the first hint that something needs attention.
+
+```{r}
+summary(mtcars)
+```
+
+For categorical data, counts are more useful than quantiles. `table` gives you
+those, and works on two variables at once to produce a cross-tabulation.
+
+```{r}
+# mtcars stores these as numbers, but they are really categories:
+# cyl = number of cylinders, am = transmission (0 = automatic, 1 = manual)
+table(mtcars$cyl)
+table(mtcars$cyl, mtcars$am)
+```
+
+Note the caveat in that comment. `summary(mtcars)` reports a mean of 6.19
+cylinders, which is arithmetically correct and practically meaningless — no car
+has 6.19 cylinders. R cannot know that a numeric column is really categorical
+unless you tell it, by converting it to a **factor**:
+
+```{r}
+mtcars$cyl_factor <- factor(mtcars$cyl)
+summary(mtcars$cyl)
+summary(mtcars$cyl_factor)
+```
+
+Now `summary` applied to the column that is a factor counts the categories instead of averaging them.
+
+# Transforming data
+
+Transforming datasets and variables is essential in any data-oriented project. Even for the most basic task you will need to select rows from a data frame, or to combine two datasets.
+
+## Subsetting in more detail
+
+When we introduced data frames we already saw how to select parts of a dataset. We will refresh the basics and dig a little deeper.
+
+Subsetting a data frame uses indices on rows and columns: `[optional rows condition, optional columns condition]`. Negative numbers select everything *except* what you name.
+
+```{r}
+mtcars[c(1, 3, 5), ]     # these three rows
+mtcars[-c(1, 3, 5), ]    # all rows EXCEPT these three
+mtcars[, c(1, 3, 5)]     # these three columns
+mtcars[, -c(1, 3, 5)]    # all columns except these three
+```
+
+Logical conditions are the most common way to subset. The idea is to produce a logical vector as long as the number of rows; the rows marked `TRUE` are the ones you get back. The **comparison operators** are `<`, `>`, `<=`, `>=`, `!=` and `==`.
+
+```{r}
+# Logical conditions on data frame values
+mtcars[mtcars$hp > 200, ][1:5, ]
+mtcars[mtcars$cyl == 6, ][1:5, ]
+mtcars[mtcars$cyl != 6, ][1:5, ]
+```
+
+The second set of brackets is there only to shorten the output to five rows. Multiple conditions are combined with the **logical operators** `!`, `&`, `|` and the `xor` function, all of which work element by element along a vector.
+
+```{r}
+# Multiple conditions on data frame values
+mtcars[mtcars$hp > 200 & mtcars$mpg > 14, ]
+mtcars[mtcars$hp >= 250 | mtcars$hp <= 65, ]
+```
+
+You will also meet `&&` and `||`. **Do not use them for subsetting.** They are meant for a single `TRUE` or `FALSE`, as in an `if` condition, and since R 4.3 they raise an error if given a vector of length greater than one. Use the single-character versions when filtering data.
+
+Another example of using conditions for both rows and columns at the same time:
+
+```{r}
+mtcars[
+    row.names(mtcars) %in% c("Fiat 128", "Fiat X1-9"),
+    c("mpg", "cyl", "wt")
+]
+```
+
+Here `%in%` checks whether each element on the left appears anywhere in the object on the right. Note that this is a different thing from the keyword `in` used in `for` loops.
+
+Conditions using functions:
+
+```{r}
+mtcars[
+    substr(row.names(mtcars), 1, 4) == "Fiat",
+    c("mpg", "cyl", "wt")
+]
+mtcars[mtcars$hp == max(mtcars$hp), ]
+```
+
+The `substr` approach above only works because "Fiat" happens to sit at the start of the name. For partial matching anywhere in the string, use `grepl`, which asks whether a pattern occurs in each element:
+
+```{r}
+mtcars[grepl("Fiat", row.names(mtcars)), ]
+```
+
+Conditions can also be stored and reused, which keeps a complicated filter readable:
+
+```{r}
+hp_pattern <- mtcars$hp >= 250 | mtcars$hp <= 65
+mtcars[hp_pattern, ]
+```
+
+## Sorting
+
+Two functions are easy to confuse here. `sort` returns the **values**, in order. `order` returns the **positions** that would put the values in order — which is what you need for subsetting, since you want to rearrange whole rows rather than a single column.
+
+```{r}
+sort(mtcars$hp)[1:5]   # the five smallest values
+order(mtcars$hp)[1:5]  # the positions of the five smallest
+```
+
+So sorting a data frame means passing `order` into the row index:
+
+```{r}
+mtcars[order(mtcars$hp), ][1:5, ]
+mtcars[order(mtcars$hp, decreasing = TRUE), ][1:5, ]
+```
+
+Ordering by several columns is straightforward — later columns break ties in the earlier ones. For clarity we store the order first:
+
+```{r}
+# Index of sorted rows
+hp_order <- order(mtcars$hp, mtcars$mpg, decreasing = TRUE)
+
+# Using the stored order
+mtcars[hp_order, ][1:5, ]
+```
+
+## Appending
+
+To combine vectors you have already seen `c`. We have used it to build atomic vectors, but depending on what you combine, the result may be a list.
+
+```{r}
+# combining objects in a vector
+c(mtcars[1, 1], mtcars[1, 3])  # atomic vector
+c(mtcars[1, 1], mtcars[1:3, 1:3])  # list
+```
+
+Binding data frames with a common structure together is easy: `cbind` joins them column-wise, `rbind` row-wise.
+
+```{r}
+# combining data frames
+cbind(mtcars[, 1], mtcars[, 3])[1:5, ]
+rbind(mtcars[1:2, ], mtcars[5:6, ])
+```
+
+Be careful with **recycling** in R. When you combine objects of different lengths, R repeats the shorter one to fill the space. Often this is convenient and you barely notice it:
+
+```{r}
+# recycling lets you write
+x <- matrix(0, 4, 4)
+
+# instead of
+matrix(rep(0, 16), 4, 4)
+
+# and it is handy when building data frames
+cbind(1, x)
+```
+
+But the same rule applies when you did not intend it:
+
+```{r}
+# y has length 2 and the matrix has 4 rows, so y is repeated twice
+y <- c(1, 2)
+cbind(y, x)
+```
+
+The important detail is *when* R warns you. If the shorter length does not divide the longer evenly — say a vector of length 3 against 4 rows — you get a warning. When it divides evenly, as here, R proceeds silently, because it assumes you meant it. That is exactly why you should always remember about the R recycling rules.
+
+**Practice** ordering, subsetting, appending. Order the `mtcars` data frame by ascending number of carburettors and weight, create two data frames with the top 3 and bottom 3 rows according to this order, and append them both.
+
+## Merging
+
+Sometimes you want to combine information from several tables that relate to each other through a common identifier. You can use the `merge` function for this.
+
+```{r}
+authors <- data.frame(
+    surname = c("Tukey", "Venables", "Tierney", "Ripley", "McNeil"),
+    nationality = c("US", "Australia", "US", "UK", "Australia"),
+    deceased = c("yes", rep("no", 4))
+)
+
+books <- data.frame(
+    name = c(
+        "Tukey", "Venables", "Tierney",
+        "Ripley", "Ripley", "McNeil", "R Core"
+    ),
+    title = c(
+        "Exploratory Data Analysis",
+        "Modern Applied Statistics ...",
+        "LISP-STAT",
+        "Spatial Statistics", "Stochastic Simulation",
+        "Interactive Data Analysis",
+        "An Introduction to R"
+    ),
+    other.author = c(
+        NA, "Ripley", NA, NA, NA, NA, "Venables & Smith"
+    )
+)
+
+merge(authors, books, by.x = "surname", by.y = "name")
+```
+
+Count the rows. `books` has seven, but the result has six: "R Core" wrote a book but does not appear in `authors`, so that row is gone. By default `merge` performs an **inner join**, keeping only the identifiers present in *both* tables.
+
+This is worth knowing, because rows disappearing after a merge is one of the most common and least visible data-wrangling bugs. If you want to keep unmatched rows, say so:
+
+```{r}
+# keep every book, even those whose author we know nothing about
+merge(authors, books, by.x = "surname", by.y = "name", all.y = TRUE)
+```
+
+The columns that could not be filled in come back as `NA`. There is also `all.x = TRUE` to keep every row of the first table, and `all = TRUE` to keep everything from both.
+
+## Categorizing and binning
+
+Sometimes you need to turn a numeric variable into a categorical one — for example, splitting horsepower into "low" (below average) and "high" (above average).
+
+A direct approach assigns into the new column twice, once per condition:
+
+```{r}
+# Copy the data frame, to keep the original unchanged
+mtcars_bis <- mtcars
+
+# Create the above- and below-average bins
+mtcars_bis$hp_categ[mtcars_bis$hp < mean(mtcars_bis$hp)] <- "Low"
+mtcars_bis$hp_categ[mtcars_bis$hp >= mean(mtcars_bis$hp)] <- "High"
+```
+
+A more compact way uses `ifelse`, which takes a condition and returns one value where it is `TRUE` and another where it is `FALSE`:
+
+```{r}
+mtcars_bis$hp_categ <- ifelse(
+    test = mtcars_bis$hp >= mean(mtcars_bis$hp),
+    yes = "High",
+    no = "Low"
+)
+```
+
+Check that the two versions agree before trusting either — getting `yes` and `no` the wrong way round produces a result that looks entirely plausible and is exactly inverted.
+
+Binning into more than two categories would be tedious this way, but the `cut` function handles it directly.
+
+**Practice**: binning into multiple categories with the `cut` function. Bin horsepower (from the `mtcars_bis` dataset) into 4 categories using `cut`, and add a new column to the dataset with these categorical values.
+
+# Data wrangling with dplyr
+
+Everything we did in the *Transforming data* section works, and it is worth understanding because it shows what R is actually doing. But in practice most people reach for `dplyr`, which expresses the same operations far more readably.
+
+`dplyr` is built around a handful of **verbs**, each doing one thing to a data frame:
+
+| Verb | What it does |
+|:---|:---|
+| `filter` | keep rows matching a condition |
+| `select` | keep columns |
+| `arrange` | sort rows |
+| `mutate` | add or change columns |
+| `summarise` | collapse many rows into one |
+| `group_by` | do all of the above *per group* |
+
+To illustrate we use the `flights` dataset from `nycflights13`, which records every flight out of the three New York airports in 2013.
+
+```{r message=FALSE}
+if (!require(dplyr, quietly = TRUE)) {
+    install.packages("dplyr")
+    library(dplyr)
+}
+if (!require(nycflights13, quietly = TRUE)) {
+    install.packages("nycflights13")
+    library(nycflights13)
+}
+```
+
+```{r}
+head(flights, 5)
+```
+
+Note the message when `dplyr` loads: it **masks** `filter` and `lag` from the `stats` package. That means `filter` now refers to `dplyr`'s version. If you ever need the original, `stats::filter` still reaches it.
+
+`filter` keeps the rows meeting a set of conditions. Suppose we want flights in November or December that arrived more than two hours late despite leaving on time:
+
+```{r}
+filter(
+    flights, 
+    month %in% c(11, 12), 
+    dep_delay <= 0,
+    arr_delay > 120
+)
+```
+
+Compare that with the base R equivalent:
+
+```r
+flights[flights$month %in% c(11, 12) &
+        flights$dep_delay <= 0 &
+        flights$arr_delay > 120, ]
+```
+
+Both work. The `dplyr` version does not repeat the data frame name on every condition, and separate arguments are combined with `&` automatically.
+
+## The pipe
+
+Real work is rarely one operation. The **pipe** lets you chain them, passing the result of each step into the next.
+
+```{r}
+flights |>
+    filter(
+        month %in% c(11, 12),
+        dep_delay <= 0,
+        arr_delay > 120
+    ) |>
+    select(year, month, day, dep_delay, arr_delay) |>
+    arrange(desc(arr_delay))
+```
+
+Read `|>` as "and then": take `flights`, **and then** filter, **and then** select these columns, **and then** sort by arrival delay. Without it you would either nest the calls inside out, which is hard to read, or create a chain of intermediate objects you never use again.
+
+A note on which pipe to use. R has had a **native pipe**, `|>`, in base R since version 4.1, and that is what we use here — it needs no packages. You will also see `%>%`, the pipe from the `magrittr` package that `dplyr` re-exports. They behave the same for everything in this handout, and older code and tutorials use `%>%` almost exclusively, so it is worth recognising both.
+
+## Grouped summaries
+
+The verb that earns `dplyr` its reputation is `group_by`, which makes every subsequent operation work *within* groups rather than across the whole table. Combined with `summarise`, it answers most of the questions you will actually have about a dataset.
+
+```{r}
+flights |>
+    group_by(carrier) |>
+    summarise(
+        n_flights = n(),
+        mean_delay = mean(arr_delay, na.rm = TRUE)
+    ) |>
+    arrange(desc(mean_delay))
+```
+
+Three things to notice. `n()` counts the rows in each group. `na.rm = TRUE` is doing real work here — `arr_delay` has missing values for cancelled flights, and without it every mean would be `NA`. And the result is itself a data frame, so you can keep piping.
+
+`mutate` adds columns, and works inside groups too:
+
+```{r}
+flights |>
+    filter(!is.na(arr_delay)) |>
+    group_by(carrier) |>
+    mutate(delay_vs_carrier_mean = arr_delay - mean(arr_delay)) |>
+    select(carrier, arr_delay, delay_vs_carrier_mean) |>
+    head(5)
+```
+
+Each flight is now compared with the average for its own airline — something that takes several steps in base R and one line here.
+
+## Where to go next
+
+`dplyr` has more verbs than we have shown, including `distinct`, `count`, `slice` and a family of join functions that replace `merge`. The reference is *R for Data Science*^[Wickham, Çetinkaya-Rundel & Grolemund, *R for Data Science* (2nd edition), free online at [r4ds.hadley.nz](https://r4ds.hadley.nz)], whose data transformation chapter covers all of this properly. The posit cheat sheets^[[posit.co/resources/cheatsheets](https://posit.co/resources/cheatsheets/)] are a good one-page reminder once you know the concepts.
+
+# Basic graphics  
+
+Visualizing your results is critical to efficiently conveying the message they carry. R is extraordinarily powerful at graphing data, allowing a great degree of customization, and it has several state-of-the-art packages.
+
+We will start with base R graphics, which need no packages at all and are what you reach for when you want a quick look at something. For more serious work you will likely move to `ggplot2`, which takes a more systematic approach to building up a plot from layers. That is covered in the extra R materials rather than here.
+
+**Stripcharts** are one-dimensional scatter plots and give a first, somewhat simplistic look at a single variable. Note the optional `xlab` parameter for setting the x-axis title.
+
+```{r, fig.margin=TRUE, fig.cap="Stripchart: first look at mpg."}
+stripchart(mtcars$mpg, xlab = "Miles per gallon")
+```
+
+A **histogram** cuts the range into discrete bins and counts how many observations fall into each.
+
+```{r, fig.margin=TRUE, fig.cap="Histogram of mileage."}
+hist(mtcars$mpg, main = "")
+```
+
+The default number of bins can be misleading, so it is worth trying a few. The optional `col` parameter sets the fill color, which helps the distribution stand out.
+
+```{r, fig.margin=TRUE, fig.cap="Smoother histogram of mpg."}
+hist(
+    mtcars$mpg,
+    col = "blue",
+    breaks = 10,
+    main = "",
+    xlab = "Miles per gallon",
+    xlim = c(10, 35)
+)
+```
+
+A **kernel density** estimate is a smooth approximation of the distribution the data came from. It is closely related to a histogram, but because it uses a smooth kernel rather than hard bin edges, the result is continuous and does not jump around as you change the binning.
+
+Note that we compute the density first, then plot the result.
+
+```{r, fig.margin=TRUE, fig.cap="Density estimate of mileage."}
+# Compute the density
+d <- density(mtcars$mpg)  
+
+# Graph the result
+plot(d, main = "")
+```
+
+Note that the result still depends on the bandwidth parameter, which is responsible for the degree of smoothing. 
+
+**Boxplots** summarize a variable in a single picture: the median, the quartiles, the range and any outliers.^[For more on the options, see [statmethods.net/graphs/boxplot.html](https://www.statmethods.net/graphs/boxplot.html).] Here we plot mileage grouped by the number of cylinders.
+
+```{r, fig.margin=TRUE, fig.cap="Example of boxplot summary, car mileage data"}
+boxplot(
+    mpg ~ cyl, data = mtcars,
+    ylab = "MPG",
+    xlab = "",
+    names = c("4 cylinders", "6 cylinders", "8 cylinders")
+)
+```
+
+The formula notation `mpg ~ cyl` reads as "mpg grouped by cyl", and you will meet it again in modelling functions such as `lm`. `boxplot` also has a `notch` argument, which draws a rough visual test of whether the medians differ — it is useful, but it warns when groups are small, as they are here, so we leave it off.
+
+**Scatterplots** show two variables against each other, and are the first thing to reach for when looking for a relationship between them. The simplest way is the `plot` function, to which we can add a regression line.
+
+```{r, fig.margin=TRUE, fig.cap="Weight vs horsepower: scatterplot and linear regression"}
+# Scatterplot
+plot(
+    x = mtcars$hp, y = mtcars$wt,
+    xlab = "Horsepower",
+    ylab = "Weight (lb/1000)",
+    pch = 16, col = "black"
+)
+
+# Linear regression line
+abline(
+    lm(wt ~ hp, data = mtcars), 
+    col = "red"
+)
+```
+
+Note that `abline` adds to the plot that is already open rather than creating a new one. Base R graphics work this way throughout: you draw a plot, then add to it with functions like `abline`, `lines`, `points`, `axis`, `legend` and `text`. The formula `wt ~ hp` in `lm()` means that we regress `wt` onto `hp`.
+
+**Practice** describing BCN census data. Use the Demographic data of census sections in Barcelona that we imported earlier, and:
+
+1. produce stripcharts, histograms and kernel density estimates of a variable of your choice. Be creative: define a new variable combining existing ones, try different colors, explore the optional parameters of each function.  
+2. scatterplot two variables and add a linear regression line. Then try adding a loess curve with `lines(loess.smooth(x, y))`. Choose appropriate point characters and sizes — with many points, small unfilled dots are often clearest.  
+3. the challenging bit: use the `layout` function to display all the univariate plots in a single matrix of plots.
+
+
+## Customizing a plot
+
+Plotting data in R is always easy, but getting the exact format you want almost never is. Some packages make this easier, but the basics of plot customization are worth knowing, and they are another example of R's flexibility.
+
+Say we want to plot the miles per gallon of the `mtcars` dataset. That much is straightforward.
+
+```{r, fig.fullwidth=TRUE, fig.cap="A first attempt plotting miles per gallon.", fig.height=3.5}
+plot(mtcars$mpg)
+```
+
+You will probably agree it is disappointing: poor axis titles, no main title, no way of telling which car is which. But these flaws are also an opportunity. A plot in R is built from elements you control, so everything here can be fixed in code — which means it can be reproduced when the data changes, or when you share the script.
+
+```{r, fig.fullwidth=TRUE, fig.cap="Our second attempt.", fig.height=3.5}
+plot(
+    mtcars$mpg, 
+    main = "Miles per gallon for selected cars",
+    ylab = "mpg", 
+    pch = 16, 
+    cex = 0.8, 
+    ylim = c(0, max(mtcars$mpg))
+)
+```
+
+That fixes several things: `main` and `ylab` give proper titles, `pch` sets the point character and `cex` its size, and `ylim` sets the axis limits. But the x axis still has no car names. Let us fix that too.
+
+```{r, fig.fullwidth=TRUE, fig.cap="Now the X axis is informative.", fig.height=3.5}
+plot(
+    mtcars$mpg, 
+    main = "Miles per gallon for selected cars", 
+    ylab = "mpg", 
+    pch = 16, 
+    cex = 0.8, 
+    ylim = c(0, max(mtcars$mpg)), 
+    xaxt = "n", 
+    xlab = ""
+)
+
+axis(
+    side = 1, 
+    at = seq_along(mtcars$mpg), 
+    labels = rownames(mtcars), 
+    las = 2, 
+    cex.axis = 0.7
+)
+```
+
+Two steps were needed there. `xaxt = "n"` suppresses the default x axis, and `axis` then draws our own — `side = 1` means the bottom, `at` gives the positions, `labels` the text, and `las = 2` turns the labels vertical so they fit.
+
+Vertical gridlines would help in reading off each car, and coloring by the number of cylinders adds information at no cost.
+
+```{r, fig.fullwidth=TRUE, fig.cap="Finally a plot both informative and well formatted.", fig.height=3.5}
+# Map cylinders onto colours properly: a factor gives us the distinct
+# categories, and as.integer() turns them into 1, 2, 3, ... which index
+# the palette. This works whatever the values are, and however many.
+cyl_factor <- factor(mtcars$cyl)
+cyl_palette <- hcl.colors(nlevels(cyl_factor), palette = "Dark 3")
+
+plot(
+    mtcars$mpg, 
+    main = "Miles per gallon for selected cars", 
+    ylab = "mpg", 
+    pch = 16, 
+    cex = 0.8, 
+    ylim = c(0, max(mtcars$mpg)), 
+    xaxt = "n", 
+    xlab = "",
+    col = cyl_palette[cyl_factor]
+)
+
+axis(
+    side = 1, 
+    at = seq_along(mtcars$mpg), 
+    labels = rownames(mtcars), 
+    las = 2, 
+    cex.axis = 0.7
+)
+
+abline(
+    v = seq_along(mtcars$mpg), 
+    col = "gray", 
+    lty = 2
+)
+
+legend(
+    x = "bottomleft", ncol = 3, cex = 0.6,
+    bg = "white",
+    legend = paste(levels(cyl_factor), "cyl"),
+    text.col = "azure4",
+    col = cyl_palette, pch = 16
+)
+```
+
+Note how the colors and the legend both derive from the same factor. Nothing is hard-coded, so if the data gained a category — or if you switched `cyl` for `gear` — the plot and its legend would follow automatically.
+
+Changing fonts is more involved. R's PDF device uses Helvetica metrics by default, and since Helvetica is a commercial font, some PDF readers substitute something else and the figure may not look as you intended. If fonts matter for your output, use `cairo_pdf()` in place of `pdf()`, or the `ragg` package for raster formats; both use your system fonts properly.
+
+## Saving plots
+
+By default a plot opens a device on your screen, or in the Plots pane in RStudio. Usually you will want to save it as a high-quality image instead. R supports several output formats — pdf, png, jpeg, svg — and they all work the same way: open a device, draw, close the device.
+
+Let us save the plot we just built.
+
+```R
+# Open the device
+pdf("mileage.pdf", width = 10, height = 4)
+
+# Add the plot, exactly as before
+plot(
+    mtcars$mpg, 
+    main = "Miles per gallon for selected cars", 
+    ylab = "mpg", 
+    pch = 16, 
+    cex = 0.8, 
+    ylim = c(0, max(mtcars$mpg)), 
+    xaxt = "n", 
+    xlab = "",
+    col = mtcars$cyl
+)
+
+axis(
+    side = 1, 
+    at = seq_along(mtcars$mpg), 
+    labels = rownames(mtcars), 
+    las = 2, 
+    cex.axis = 0.7
+)
+
+abline(
+    v = seq_along(mtcars$mpg), 
+    col = "gray", 
+    lty = 2
+)
+
+# Close the device
+dev.off()
+```
+
+Two things to note. No directory path is given, so the file goes to the current working directory. You can give a path such as `"output/mileage.pdf"` instead — but the folder must already exist, or `pdf()` fails with "cannot open file". Running `dir.create("output", showWarnings = FALSE)` as we did at the beginning of the handout creates it if needed and stays quiet if it is already there.
+
+And the closing step matters more than it looks. Nothing is written to the file until `dev.off()` runs. If you forget it, the file stays empty, and every plot you draw afterwards goes into it rather than to your screen — which is a confusing thing to debug if you do not know to look for it.
+
+# Basic text manipulation  
+
+In many cases you will need to operate on text strings. Here we look at the essential operations.
+
+Handling strings in R can sometimes be painful.^[A classical reference is Sanchez, G. (2013) *Handling and Processing Strings in R*. Trowchez Editions, Berkeley. [gastonsanchez.com/Handling_and_Processing_Strings_in_R.pdf](https://www.gastonsanchez.com/Handling_and_Processing_Strings_in_R.pdf)] Several packages exist to ease that pain, `stringr` being the most widely used. Here we look only at base R functions, which are always available and cover most of what you need.
+
+The `paste` function is probably the most used of them. It concatenates strings, converting non-string objects to characters along the way. By default it separates the pieces with a blank space.
+
+```{r}
+paste("Barcelona", "School of Economics")
+```
+
+The `sep` parameter sets a different separator, and `paste0` is a convenient shorthand which sets `sep = ""`.
+
+```{r}
+paste("Barcelona", "School of Economics", sep = "-")
+paste0("Barcelona", "School of Economics")
+```
+
+Numeric values are coerced to strings.
+
+```{r}
+paste("The Life of", pi)
+```
+
+It also works on vectors, which is what makes it useful for building labels:
+
+```{r}
+paste0("Class of 202", 6:9)
+```
+
+Count characters with `nchar`, which works on a single string or a vector.
+
+```{r}
+nchar(c("How", "many", "characters?"))
+nchar("How many characters?")
+```
+
+Convert case with `tolower` and `toupper`.
+
+```{r}
+tolower("Barcelona School of Economics")
+toupper(c("Barcelona", "School of Economics"))
+```
+
+Extract or replace substrings with `substr`, giving the start and stop positions.
+
+```{r}
+substr("Barcelona School of Economics", start = 11, stop = 13)
+
+days <- c("Mond", "Tues", "Wedn")
+substr(days, 4, 4) <- "."
+days
+```
+
+Split a string into pieces with `strsplit`. Note that it returns a **list**, one element per input string, since different strings may split into different numbers of pieces. `unlist` flattens it when you only passed one string.
+
+```{r}
+strsplit("Barcelona School of Economics", split = " ")
+unlist(strsplit("Barcelona School of Economics", split = " "))
+```
+
+Find and replace with `sub` and `gsub`. The difference matters: `sub` replaces only the **first** match in each string, `gsub` replaces **all** of them.
+
+```{r}
+sub("o", "0", "Barcelona School of Economics")
+gsub("o", "0", "Barcelona School of Economics")
+```
+
+These two are the workhorses of text cleaning. We already used `gsub` in the import section to strip thousands separators out of a column that should have been numeric — and there the distinction is not academic: `sub(",", "", "1,234,567")` leaves you with `"1234,567"`, which then converts to `NA`.
+
+Remove leading and trailing whitespace with `trimws`, which is more common than it sounds — stray spaces at the ends of imported strings are a frequent cause of failed joins.
+
+```{r}
+trimws("   Barcelona   ")
+```
+
+Uniquely abbreviate strings with `abbreviate`.
+
+```{r}
+abbreviate(
+    c("Asset Pricing", "Corporate Finance", "Econometrics"),
+    minlength = 5
+)
+```
+
+A note on patterns. `sub`, `gsub` and `grepl` all take **regular expressions**, a small language for describing text patterns. We have only used literal text here, but the same functions handle much more: `gsub("[0-9]", "", x)` strips every digit, and `grepl("^Fiat", x)` matches only strings that *begin* with "Fiat". Regular expressions are worth learning at some point; `?regex` is the reference.
+
+**Practice** cleaning text for a join. Take the car names from `mtcars` with `rownames(mtcars)`. Produce a version of them that is lower case, has spaces replaced by underscores, and has no punctuation — the kind of tidying you do before matching names against another table. Then check with `nchar` how much shorter the longest name became.
+
+# Dates and times
+
+Dates and times look simple and are not. R has two main classes for them, and knowing which one you have saves a lot of confusion:
+
+- **`Date`** stores a calendar date as the number of days since 1970-01-01, with negative values for earlier dates. No time of day.
+- **`POSIXct`** stores a date *and* time as the number of **seconds** since the same origin.
+
+`Sys.Date()` gives you the first, `Sys.time()` the second. R prints both in familiar formats, so the difference is easy to miss until it bites.^[[en.wikibooks.org/wiki/R_Programming/Times_and_Dates](https://en.wikibooks.org/wiki/R_Programming/Times_and_Dates)] The `lubridate` package makes much of this easier, but the base functions are worth knowing first.
+
+```{r}
+Sys.Date()
+class(Sys.Date())
+
+Sys.time()
+class(Sys.time())
+```
+
+**System date and time** are useful for many purposes — timestamping output, building filenames, measuring how long something took.
+
+```{r}
+# Time with HH:MM:SS format
+format(Sys.time(), "%H:%M:%S") 
+
+# Date with YYYY-MM-DD format
+format(Sys.time(), "%Y-%m-%d") 
+
+# using system time to measure a duration
+x <- Sys.time()
+y <- Sys.time()
+y - x
+
+# there is a dedicated function for this
+system.time(
+    for (i in 1:100) mad(runif(1000))
+)
+```
+
+The output of `system.time` has three parts. **User CPU time** is time the processor spent on your R code. **System CPU time** is time the operating system spent on R's behalf — opening files, reading and writing, and so on. **Elapsed time** is wall-clock time: how long you actually waited.
+
+Elapsed is not the sum of the other two. It can be smaller if work ran in parallel across several cores, and larger if R spent time waiting on the disk or competing with other processes. Elapsed is what you care about in practice; the split between user and system tells you where the time went.
+
+Converting strings to dates is unavoidable when importing data, and formatting them properly matters when reporting results. The format string uses codes like `%Y` for a four-digit year, `%m` for month and `%d` for day — see `?strptime` for the full list.
+
+```{r}
+# String to Date
+x <- as.Date("20140912", format = "%Y%m%d")
+x 
+class(x)
+
+# String to date-time
+strptime("09/12/11 17.30.00", format = "%m/%d/%y %H.%M.%S")
+
+# Date back to string
+as.character(Sys.time())
+```
+
+**Extracting information from dates.**
+
+```{r}
+# Name of weekday
+weekdays(Sys.Date())
+
+# Name of month
+months(Sys.Date()) 
+
+# Number of days since 1970-01-01
+julian(Sys.Date()) 
+```
+
+Note that R's `julian` counts from 1970-01-01, the same origin as `Date` itself — the `origin` attribute printed with the result tells you so. This is not the astronomical Julian Day Number, which counts from 4713 BC and would give a number in the millions.
+
+**Generating sequences of dates.** The `by` argument accepts `"day"`, `"week"`, `"month"`, `"year"`, and multiples such as `"2 weeks"`.
+
+```{r}
+# Every day between two dates
+seq(
+    from = as.Date("2024-09-12"), 
+    to = as.Date("2024-09-14"),
+    by = "day"
+)
+
+# Every month between two dates
+seq(
+    from = as.Date("2024-09-12"), 
+    to = as.Date("2024-11-12"),
+    by = "month"
+)
+
+# Three dates evenly spaced between two endpoints
+seq(
+    from = as.Date("2024-09-12"), 
+    to = as.Date("2024-09-16"),
+    length.out = 3
+)
+
+# The next three days, counting from today
+seq(Sys.Date(), length.out = 3, by = "1 day")
+
+# The next three months
+seq(Sys.Date(), length.out = 3, by = "1 month")
+```
+
+**Arithmetic with dates.** Adding a number to a `Date` adds days. Subtracting two dates gives a `difftime`, which carries its units with it.
+
+```{r}
+# Adding days
+as.Date("2024-09-12") + 30
+
+# Difference between two dates
+Sys.Date() - as.Date("2024-01-01")
+
+# Adding months is not just "add 30 days", so use seq
+seq(Sys.Date(), length.out = 2, by = "3 months")[2]
+```
+
+Be careful with `difftime` units. Subtracting two `Date` objects always gives days, but subtracting two `POSIXct` objects gives whatever unit R judges most readable — seconds for a short gap, days for a long one. If you need a number in known units, say so explicitly:
+
+```{r}
+d <- Sys.time() - as.POSIXct("2024-01-01")
+d
+as.numeric(d, units = "days")
+```
+
+**Practice** proper formatting of dates in imported data. The BCN census data we imported earlier has its date in the first column, stored as text in `DD/MM/YY` format. Convert it with `as.Date`, then create a new column holding the day after. Check the class of your new column to make sure the conversion worked — a wrong format string produces `NA` rather than an error.
+
+# Time series
+
+You can manipulate time series with what we have seen so far, but the **eXtensible Time Series** package `xts` makes it considerably easier. An `xts` object is simple to think about: a matrix of observations paired with an index of dates or times. To build one you need a vector or matrix of values and an index of the same length.
+
+```{r}
+if (!require(xts, quietly = TRUE)) {
+    install.packages("xts")
+    library(xts)
+}
+```
+
+```{r}
+# Generate normally distributed data
+set.seed(42)
+data <- data.frame(x = rnorm(5))
+
+# Create dates as a Date object. Note they can be irregularly spaced,
+# which is one of the reasons to use xts rather than a plain matrix.
+dates <- as.Date(
+    c("2020-01-01", "2020-02-03", "2020-05-10", "2020-06-01", "2020-07-31")
+)
+
+# Create the xts object
+X <- xts(x = data, order.by = dates) 
+X
+
+# Plot it
+plot(X, type = "b", ylim = c(-1, 2))
+
+# The values and the index can be pulled out separately
+class(coredata(X))
+class(index(X))
+```
+
+One difference between `xts` and most other time series objects in R is that the index can be of any time class — `Date`, `POSIXct`, `yearmon` and others. Internally `xts` converts them to a common representation, so subsetting behaves the same way whichever you started from.
+
+```{r}
+# Create dates
+dates <- as.Date("2016-01-01") + 0:4
+
+# ts_a is indexed by Date, ts_b by POSIXct - the same five days
+ts_a <- xts(x = 1:5, order.by = dates)
+ts_b <- xts(x = 1:5, order.by = as.POSIXct(dates))
+
+class(index(ts_a))
+class(index(ts_b))
+
+# Despite the different index classes, each can be subset by the other's
+# index and the rows still match up
+ts_a[index(ts_b)]
+ts_b[index(ts_a)]
+```
+
+## Importing data to xts
+
+There are two routes, and both take two steps: get the data in, and attach a time index to it. They differ in which step does the date parsing.
+
+```{r}
+# Write a small CSV to work with
+tmp_file <- tempfile(fileext = ".csv")
+writeLines(
+    c("date,a,b", "01/03/2020,1,4", "02/03/2020,2,5", "03/03/2020,3,6"),
+    tmp_file
+)
+```
+
+The first route reads the file as an ordinary data frame, then builds the `xts` object from it, converting the date column yourself:
+
+```{r}
+dat <- read.csv(tmp_file)
+
+dat_xts <- xts(
+    dat[, c("a", "b")],
+    order.by = as.Date(dat$date, format = "%d/%m/%Y")
+)
+dat_xts
+```
+
+The second uses `read.zoo`, which reads the file and parses the index column in one call. Note that it gives you a `zoo` object, so converting to `xts` is still a separate step — what you save is writing `as.Date` yourself:
+
+```{r}
+dat_zoo <- read.zoo(tmp_file, header = TRUE, sep = ",", format = "%d/%m/%Y")
+(class(dat_zoo))
+
+dat_zoo <- as.xts(dat_zoo)
+(class(dat_zoo))
+
+dat_zoo
+```
+
+The `format` string matters and is worth double-checking. `"%d/%m/%Y"` and `"%m/%d/%Y"` both parse `01/03/2020` without complaint, but one gives 1 March and the other 3 January. A wrong format string produces either silent nonsense or a column of `NA`s, so confirm against a date where the day exceeds twelve.
+
+## Exporting xts
+
+If you are working only in R, the simplest way to save and reload an object is `saveRDS()` and `readRDS()`. This differs from `save()`: `save()` stores the object *together with its name*, so loading it recreates that name in your workspace, whereas `saveRDS()` stores just the object and you choose the name when you read it back.
+
+```{r}
+saveRDS(object = dat_zoo, file = "output/dat_zoo.rds")
+class(readRDS("output/dat_zoo.rds"))
+```
+
+Sometimes you need to hand results to someone whose tools know nothing about R or `xts`. The `zoo` function `write.zoo` writes a plain text file for that purpose. Here we convert the built-in sunspots data to `xts` and write it out.
+
+```{r}
+# Get the pre-loaded data and inspect its class
+data(sunspots)
+class(sunspots)
+
+# Convert to xts
+sunspots_xts <- as.xts(sunspots)
+plot(sunspots_xts)
+
+# Write it to a temporary file
+tmp <- tempfile()
+write.zoo(sunspots_xts, sep = ",", file = tmp)
+
+# Read it back. FUN = as.yearmon converts strings such as "Jan 1749"
+# into a proper time class
+sun <- read.zoo(tmp, sep = ",", FUN = as.yearmon)
+
+# And back to xts
+sun_xts <- as.xts(sun)
+```
+
+Note the `FUN` argument. Without it, `read.zoo` has no way of knowing that `"Jan 1749"` is a date rather than a string, and the round trip would lose the index.
+
+## Extracting data 
+
+Subsetting is where `xts` earns its place. The matrix indexing you already know still works, and on top of that you can index by date, using strings that `xts` interprets for you.
+
+```{r}
+# Extract the first two observations
+X[1:2]
+
+# A specific date
+X["2020-06-01"]
+
+# A whole year
+X["2020"]
+
+# A range: January to February, written as from/to
+X["202001/202002"]
+
+# A given vector of dates
+dates <- c("2020-05-10", "2020-07-31")
+X[dates]
+
+# The first and last two months of the series
+first(X, "2 months")
+last(X, "2 months")
+```
+
+That last pair is worth noticing: `first` and `last` here take a *period*, not a number of rows, so `last(X, "2 months")` means "everything in the final two months" however many observations that turns out to be.
+
+`xts` also lets you merge series by date, bind rows and columns as with a data frame, and compute differences and lags. `merge`, `rbind`, `diff` and `lag` all work as you would expect, aligning on the index rather than on position — which is the whole point of keeping the dates attached to the data.
