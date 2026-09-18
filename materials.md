@@ -57,6 +57,8 @@ These are optional and go beyond what we cover in class, but pandas is central t
 
 [R Data](./docs/R-handouts/Rdata/handout_Rdata.html) ([source](./docs/R-handouts/handout_Rdata_source.zip)) — importing, transforming and merging data, and producing figures and tables.
 
+[R Extra](./docs/R-handouts/Rextra/linearmodels.html) ([source](./docs/R-handouts/Rextra_source.zip)) — linear models and ggplot2. 
+
 ### Exercises
 
 The assignments below contain several files with exercises on different topics each.
