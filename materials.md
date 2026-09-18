@@ -45,10 +45,6 @@ Class 5: [OOP (cont'd) and Modules](./docs/python-lectures/class_5_oop_modules.t
 
 \[0\] [Basics](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/python-basics/accept); \[1\] [Functions](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/python-functions/accept); \[2\] [Conditionals](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/python-conditionals/accept); \[3\] [Loops](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/python-loops/accept); \[4\] [Dictionaries](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/python-dictionaries/accept); \[5\] [Classes](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/python-classes/accept); \[6\] [JSON](https://classroom50.org/bse-computing-brushup/iicds-2026/assignments/python-json/accept).
 
-Extra materials on Pandas: Intro *(coming soon)*; Grouping *(coming soon)*; Project *(coming soon)*.
-
-These are optional and go beyond what we cover in class, but pandas is central to almost everything you will do afterwards, so they are well worth your time. The repositories also contain tutorial notebooks. I am happy to do a code review for these on request.
-
 ## R materials
 
 ### Handouts
