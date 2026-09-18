@@ -584,11 +584,11 @@ flights |>
 
 Read `|>` as "and then": take `flights`, **and then** filter, **and then** select these columns, **and then** sort by arrival delay. Without it you would either nest the calls inside out, which is hard to read, or create a chain of intermediate objects you never use again.
 
-A note on which pipe to use. R has had a **native pipe**, `|>`, in base R since version 4.1, and that is what we use here — it needs no packages. You will also see `%>%`, the pipe from the `magrittr` package that `dplyr` re-exports. They behave the same for everything in this handout, and older code and tutorials use `%>%` almost exclusively, so it is worth recognising both.
+A note on which pipe to use. R has had a **native pipe**, `|>`, in base R since version 4.1, and that is what we use here — it needs no packages. You will also see `%>%`, the pipe from the `magrittr` package that `dplyr` re-exports. They behave the same for everything in this handout, and older code and tutorials use `%>%` almost exclusively, so it is worth recognizing both.
 
 ## Grouped summaries
 
-The verb that earns `dplyr` its reputation is `group_by`, which makes every subsequent operation work *within* groups rather than across the whole table. Combined with `summarise`, it answers most of the questions you will actually have about a dataset.
+The `group_by` verb makes every subsequent operation work *within* groups rather than across the whole table. Combined with `summarise`, it can answer a lot of the questions you will have about a dataset.
 
 ```{r}
 flights |>
@@ -613,7 +613,7 @@ flights |>
     head(5)
 ```
 
-Each flight is now compared with the average for its own airline — something that takes several steps in base R and one line here.
+Each flight is now compared with the average for its own airline. Getting this result would take several considerably more involved steps in base R compared to this single verbose pipeline that we have here.
 
 ## Where to go next
 
@@ -937,7 +937,7 @@ A note on patterns. `sub`, `gsub` and `grepl` all take **regular expressions**, 
 
 # Dates and times
 
-Dates and times look simple and are not. R has two main classes for them, and knowing which one you have saves a lot of confusion:
+Dates and times look simple and are not. R has two main classes for them, and knowing which one to use saves a lot of confusion. The ones that we will talk about are:
 
 - **`Date`** stores a calendar date as the number of days since 1970-01-01, with negative values for earlier dates. No time of day.
 - **`POSIXct`** stores a date *and* time as the number of **seconds** since the same origin.
@@ -962,11 +962,11 @@ format(Sys.time(), "%H:%M:%S")
 format(Sys.time(), "%Y-%m-%d") 
 
 # using system time to measure a duration
-x <- Sys.time()
-y <- Sys.time()
-y - x
+time_0 <- Sys.time()
+time_1 <- Sys.time()
+time_1 - time_0
 
-# there is a dedicated function for this
+# there is also a dedicated function for this that gives more info
 system.time(
     for (i in 1:100) mad(runif(1000))
 )
@@ -1055,14 +1055,14 @@ Be careful with `difftime` units. Subtracting two `Date` objects always gives da
 ```{r}
 d <- Sys.time() - as.POSIXct("2024-01-01")
 d
-as.numeric(d, units = "days")
+as.numeric(d, units = "weeks")
 ```
 
-**Practice** proper formatting of dates in imported data. The BCN census data we imported earlier has its date in the first column, stored as text in `DD/MM/YY` format. Convert it with `as.Date`, then create a new column holding the day after. Check the class of your new column to make sure the conversion worked — a wrong format string produces `NA` rather than an error.
+**Practice** proper formatting of dates in imported data. The BCN census data we imported earlier has its date in the first column, stored as text in `DD/MM/YY` format. Convert it with `as.Date`, then create a new column holding the day after. Check the class of your new column to make sure the conversion worked — a wrong format string can produce `NA` silently rather than raising an error.
 
 # Time series
 
-You can manipulate time series with what we have seen so far, but the **eXtensible Time Series** package `xts` makes it considerably easier. An `xts` object is simple to think about: a matrix of observations paired with an index of dates or times. To build one you need a vector or matrix of values and an index of the same length.
+You can manipulate time series with what we have seen so far, but the **eXtensible Time Series** package `xts` makes it considerably easier. An `xts` object can be thought of as a matrix of observations paired with an index of dates or times. To build one you need a vector or matrix of values and an index of the same length.
 
 ```{r}
 if (!require(xts, quietly = TRUE)) {
@@ -1073,13 +1073,13 @@ if (!require(xts, quietly = TRUE)) {
 
 ```{r}
 # Generate normally distributed data
-set.seed(42)
+set.seed(1234)
 data <- data.frame(x = rnorm(5))
 
 # Create dates as a Date object. Note they can be irregularly spaced,
 # which is one of the reasons to use xts rather than a plain matrix.
 dates <- as.Date(
-    c("2020-01-01", "2020-02-03", "2020-05-10", "2020-06-01", "2020-07-31")
+    c("2026-01-01", "2026-02-03", "2026-05-10", "2026-06-01", "2026-07-31")
 )
 
 # Create the xts object
@@ -1090,13 +1090,13 @@ X
 plot(X, type = "b", ylim = c(-1, 2))
 
 # The values and the index can be pulled out separately
-class(coredata(X))
-class(index(X))
+coredata(X)
+index(X)
 ```
 
 One difference between `xts` and most other time series objects in R is that the index can be of any time class — `Date`, `POSIXct`, `yearmon` and others. Internally `xts` converts them to a common representation, so subsetting behaves the same way whichever you started from.
 
-```{r}
+```{r, warning=FALSE}
 # Create dates
 dates <- as.Date("2016-01-01") + 0:4
 
@@ -1104,8 +1104,8 @@ dates <- as.Date("2016-01-01") + 0:4
 ts_a <- xts(x = 1:5, order.by = dates)
 ts_b <- xts(x = 1:5, order.by = as.POSIXct(dates))
 
-class(index(ts_a))
-class(index(ts_b))
+index(ts_a)
+index(ts_b)
 
 # Despite the different index classes, each can be subset by the other's
 # index and the rows still match up
@@ -1138,7 +1138,7 @@ dat_xts <- xts(
 dat_xts
 ```
 
-The second uses `read.zoo`, which reads the file and parses the index column in one call. Note that it gives you a `zoo` object, so converting to `xts` is still a separate step — what you save is writing `as.Date` yourself:
+The second uses `read.zoo`, which reads the file and parses the index column in one call. Note that it gives you a `zoo` object, and you can convert it to `xts` by using `as.xts` if needed. Still, this approach saves you processing the indices by writing the expression with `as.Date` yourself:
 
 ```{r}
 dat_zoo <- read.zoo(tmp_file, header = TRUE, sep = ",", format = "%d/%m/%Y")
@@ -1182,29 +1182,30 @@ sun <- read.zoo(tmp, sep = ",", FUN = as.yearmon)
 
 # And back to xts
 sun_xts <- as.xts(sun)
+head(sun_xts, 5)
 ```
 
 Note the `FUN` argument. Without it, `read.zoo` has no way of knowing that `"Jan 1749"` is a date rather than a string, and the round trip would lose the index.
 
 ## Extracting data 
 
-Subsetting is where `xts` earns its place. The matrix indexing you already know still works, and on top of that you can index by date, using strings that `xts` interprets for you.
+`xts` defines intuitive subsetting tools. The matrix indexing you already know still works, and on top of that you can index by date, using strings that `xts` interprets for you.
 
 ```{r}
 # Extract the first two observations
 X[1:2]
 
 # A specific date
-X["2020-06-01"]
+X["2026-06-01"]
 
 # A whole year
-X["2020"]
+X["2026"]
 
 # A range: January to February, written as from/to
-X["202001/202002"]
+X["202601/202602"]
 
 # A given vector of dates
-dates <- c("2020-05-10", "2020-07-31")
+dates <- c("2026-05-10", "2026-07-31")
 X[dates]
 
 # The first and last two months of the series
